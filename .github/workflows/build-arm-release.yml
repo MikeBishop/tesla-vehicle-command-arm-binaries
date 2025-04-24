@@ -60,11 +60,11 @@ jobs:
           if [[ $(echo "$EXTERNAL_VERSION_NUMBER" "$RELEASE_VERSION_NUMBER" | awk '{ if ($1 > $2) print "true"; else print "false"; }') == "true" ]]; then
             echo "NEW_VERSION_AVAILABLE=true" >> "$GITHUB_OUTPUT"
             echo "Newer version of Tesla Vehicle Command detected."
-          else
+          else {
             echo "NEW_VERSION_AVAILABLE=false" >> "$GITHUB_OUTPUT"
             echo "No new version detected. Current release is up to date."
             exit 0 # Exit the workflow if no new version
-          fi
+          } fi
 
       - name: Checkout Tesla Vehicle Command (if new version)
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
@@ -77,6 +77,10 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: '>=1.23'
+
+      - name: Clean Go Cache (armv7) (if new version)
+        if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
+        run: go clean -cache
 
       - name: Build Tesla Vehicle Command for linux/armv7 (if new version)
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
@@ -94,6 +98,10 @@ jobs:
           echo "Creating zip archive of armv7 binaries..."
           cd build/linux-armv7
           zip -r vehicle-command-binaries-linux-armv7.zip ./*
+
+      - name: Clean Go Cache (armv6) (if new version)
+        if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
+        run: go clean -cache
 
       - name: Build Tesla Vehicle Command for linux/armv6 (if new version)
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
