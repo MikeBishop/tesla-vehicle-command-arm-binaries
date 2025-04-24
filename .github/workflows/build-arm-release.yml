@@ -96,11 +96,11 @@ jobs:
         id: create_armv7_binary_archive
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
         run: |
-          echo "Creating zip archive of armv7 binaries..."
+          echo "Creating tar.gz archive of armv7 binaries..."
           cd build/linux-armv7
-          ZIP_ARMV7="vehicle-command-binaries-linux-armv7.zip"
-          zip -r "$ZIP_ARMV7" ./*
-          echo "ARMV7_ARCHIVE=$PWD/$ZIP_ARMV7" >> "$GITHUB_OUTPUT"
+          ARCHIVE_ARMV7="vehicle-command-binaries-linux-armv7.tar.gz"
+          tar -czvf "$ARCHIVE_ARMV7" ./*
+          echo "ARMV7_ARCHIVE=$PWD/$ARCHIVE_ARMV7" >> "$GITHUB_OUTPUT"
 
       - name: Clean Go Cache (armv6) (if new version)
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
@@ -120,11 +120,11 @@ jobs:
         id: create_armv6_binary_archive
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
         run: |
-          echo "Creating zip archive of armv6 binaries..."
+          echo "Creating tar.gz archive of armv6 binaries..."
           cd build/linux-armv6
-          ZIP_ARMV6="vehicle-command-binaries-linux-armv6.zip"
-          zip -r "$ZIP_ARMV6" ./*
-          echo "ARMV6_ARCHIVE=$PWD/$ZIP_ARMV6" >> "$GITHUB_OUTPUT"
+          ARCHIVE_ARMV6="vehicle-command-binaries-linux-armv6.tar.gz"
+          tar -czvf "$ARCHIVE_ARMV6" ./*
+          echo "ARMV6_ARCHIVE=$PWD/$ARCHIVE_ARMV6" >> "$GITHUB_OUTPUT"
 
       - name: Create New Release (if new version)
         id: create_new_release
