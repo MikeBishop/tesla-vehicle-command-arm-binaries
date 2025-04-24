@@ -89,19 +89,27 @@ jobs:
           go build -o build/linux-armv7 ./cmd/...
 
       - name: Create New Release (if new version)
+        id: create_new_release
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
-        uses: actions/create-release@v1
+        uses: ncipollo/release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: "v${{ steps.get_external_version.outputs.LATEST_VERSION }}"
-          release_name: "Tesla Vehicle Command v${{ steps.get_external_version.outputs.LATEST_VERSION }}"
+          tag: "v${{ steps.get_external_version.outputs.LATEST_VERSION }}"
+          name: "Tesla Vehicle Command v${{ steps.get_external_version.outputs.LATEST_VERSION }}"
           body: |
             New version of Tesla Vehicle Command binaries.
           draft: false
           prerelease: false
+          makeLatest: true
+          overwrite: true
+          allowUpdates: true
 
       - name: Upload Release Artifacts (if new version)
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_new_release.outputs.upload_url }}
           asset_path: build/linux-armv7/vehicle-command-binaries
