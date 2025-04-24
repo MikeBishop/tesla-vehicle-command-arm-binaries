@@ -88,6 +88,13 @@ jobs:
           GOARM=7
           go build -o build/linux-armv7 ./cmd/...
 
+      - name: Create Binary Archive (if new version)
+        if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
+        run: |
+          echo "Creating zip archive of binaries..."
+          cd build/linux-armv7
+          zip -r vehicle-command-binaries-linux-armv7.zip ./*
+
       - name: Create New Release (if new version)
         id: create_new_release
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
@@ -102,7 +109,6 @@ jobs:
           draft: false
           prerelease: false
           makeLatest: true
-          overwrite: true
           allowUpdates: true
 
       - name: Upload Release Artifacts (if new version)
@@ -112,6 +118,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_new_release.outputs.upload_url }}
-          asset_path: build/linux-armv7/vehicle-command-binaries
-          asset_name: "vehicle-command-binaries-linux-armv7-v${{ steps.get_external_version.outputs.LATEST_VERSION }}"
-          asset_content_type: application/octet-stream
+          asset_path: build/linux-armv7/vehicle-command-binaries-linux-armv7.zip
+          asset_name: "vehicle-command-binaries-linux-armv7-v${{ steps.get_external_version.outputs.LATEST_VERSION }}.zip"
+          asset_content_type: application/zip
