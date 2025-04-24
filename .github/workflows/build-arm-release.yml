@@ -155,5 +155,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_new_release.outputs.upload_url }}
           asset_path: build/linux-armv6/vehicle-command-binaries-linux-armv6.zip
-          asset_name: "vehicle-command-binaries-linux-armv6-v${{ steps.get_external_version.outputs.LATEST_VERSION }}-armv6.zip"
+          asset_name: "vehicle-command-binaries-linux-armv6-v${{ steps.get_external_version.outputs.LATEST_VERSION }}.zip"
           asset_content_type: application/zip
