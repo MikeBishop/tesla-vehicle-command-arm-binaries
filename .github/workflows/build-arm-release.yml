@@ -88,12 +88,29 @@ jobs:
           GOARM=7
           go build -o build/linux-armv7 ./cmd/...
 
-      - name: Create Binary Archive (if new version)
+      - name: Create armv7 Binary Archive (if new version)
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
         run: |
-          echo "Creating zip archive of binaries..."
+          echo "Creating zip archive of armv7 binaries..."
           cd build/linux-armv7
           zip -r vehicle-command-binaries-linux-armv7.zip ./*
+
+      - name: Build Tesla Vehicle Command for linux/armv6 (if new version)
+        if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
+        run: |
+          echo "Building all utilities under ./cmd for linux/armv6..."
+          mkdir -p build/linux-armv6
+          GOOS=linux
+          GOARCH=arm
+          GOARM=6
+          go build -o build/linux-armv6 ./cmd/...
+
+      - name: Create armv6 Binary Archive (if new version)
+        if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
+        run: |
+          echo "Creating zip archive of armv6 binaries..."
+          cd build/linux-armv6
+          zip -r vehicle-command-binaries-linux-armv6.zip ./*
 
       - name: Create New Release (if new version)
         id: create_new_release
@@ -111,7 +128,7 @@ jobs:
           makeLatest: true
           allowUpdates: true
 
-      - name: Upload Release Artifacts (if new version)
+      - name: Upload armv7 Release Artifacts (if new version)
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
         uses: actions/upload-release-asset@v1
         env:
@@ -120,4 +137,15 @@ jobs:
           upload_url: ${{ steps.create_new_release.outputs.upload_url }}
           asset_path: build/linux-armv7/vehicle-command-binaries-linux-armv7.zip
           asset_name: "vehicle-command-binaries-linux-armv7-v${{ steps.get_external_version.outputs.LATEST_VERSION }}.zip"
+          asset_content_type: application/zip
+
+      - name: Upload armv6 Release Artifacts (if new version)
+        if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_new_release.outputs.upload_url }}
+          asset_path: build/linux-armv6/vehicle-command-binaries-linux-armv6.zip
+          asset_name: "vehicle-command-binaries-linux-armv6-v${{ steps.get_external_version.outputs.LATEST_VERSION }}-armv6.zip"
           asset_content_type: application/zip
