@@ -93,11 +93,14 @@ jobs:
           go build -o build/linux-armv7 ./cmd/...
 
       - name: Create armv7 Binary Archive (if new version)
+        id: create_armv7_binary_archive
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
         run: |
           echo "Creating zip archive of armv7 binaries..."
           cd build/linux-armv7
-          zip -r vehicle-command-binaries-linux-armv7.zip ./*
+          ZIP_ARMV7="vehicle-command-binaries-linux-armv7.zip"
+          zip -r "$ZIP_ARMV7" ./*
+          echo "ARMV7_ARCHIVE=$PWD/$ZIP_ARMV7" >> "$GITHUB_OUTPUT"
 
       - name: Clean Go Cache (armv6) (if new version)
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
@@ -114,11 +117,14 @@ jobs:
           go build -o build/linux-armv6 ./cmd/...
 
       - name: Create armv6 Binary Archive (if new version)
+        id: create_armv6_binary_archive
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
         run: |
           echo "Creating zip archive of armv6 binaries..."
           cd build/linux-armv6
-          zip -r vehicle-command-binaries-linux-armv6.zip ./*
+          ZIP_ARMV6="vehicle-command-binaries-linux-armv6.zip"
+          zip -r "$ZIP_ARMV6" ./*
+          echo "ARMV6_ARCHIVE=$PWD/$ZIP_ARMV6" >> "$GITHUB_OUTPUT"
 
       - name: Create New Release (if new version)
         id: create_new_release
@@ -135,25 +141,5 @@ jobs:
           prerelease: false
           makeLatest: true
           allowUpdates: true
-
-      - name: Upload armv7 Release Artifacts (if new version)
-        if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_new_release.outputs.upload_url }}
-          asset_path: build/linux-armv7/vehicle-command-binaries-linux-armv7.zip
-          asset_name: "vehicle-command-binaries-linux-armv7-v${{ steps.get_external_version.outputs.LATEST_VERSION }}.zip"
-          asset_content_type: application/zip
-
-      - name: Upload armv6 Release Artifacts (if new version)
-        if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_new_release.outputs.upload_url }}
-          asset_path: build/linux-armv6/vehicle-command-binaries-linux-armv6.zip
-          asset_name: "vehicle-command-binaries-linux-armv6-v${{ steps.get_external_version.outputs.LATEST_VERSION }}.zip"
-          asset_content_type: application/zip
+          artifacts: ${{ steps.create_armv7_binary_archive.outputs.ARMV7_ARCHIVE }}, ${{ steps.create_armv6_binary_archive.outputs.ARMV6_ARCHIVE }}
+          artifactErrorsFailBuild: true
