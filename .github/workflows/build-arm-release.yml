@@ -87,9 +87,9 @@ jobs:
         run: |
           echo "Building all utilities under ./cmd for linux/armv7..."
           mkdir -p build/linux-armv7
-          GOOS=linux
-          GOARCH=arm
-          GOARM=7
+          export GOOS=linux
+          export GOARCH=arm
+          export GOARM=7
           go build -o build/linux-armv7 ./cmd/...
 
       - name: Create armv7 Binary Archive (if new version)
@@ -111,9 +111,9 @@ jobs:
         run: |
           echo "Building all utilities under ./cmd for linux/armv6..."
           mkdir -p build/linux-armv6
-          GOOS=linux
-          GOARCH=arm
-          GOARM=6
+          export GOOS=linux
+          export GOARCH=arm
+          export GOARM=6
           go build -o build/linux-armv6 ./cmd/...
 
       - name: Create armv6 Binary Archive (if new version)
