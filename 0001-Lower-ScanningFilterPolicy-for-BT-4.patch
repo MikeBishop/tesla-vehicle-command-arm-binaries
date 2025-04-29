@@ -1,0 +1,25 @@
+From a92f16bf176486bb4918bfb465ca84d79d6592f6 Mon Sep 17 00:00:00 2001
+From: Mike Bishop <mbishop@evequefou.be>
+Date: Tue, 29 Apr 2025 11:42:00 -0400
+Subject: [PATCH] Lower ScanningFilterPolicy for BT 4
+
+---
+ pkg/connector/ble/device_linux.go | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/pkg/connector/ble/device_linux.go b/pkg/connector/ble/device_linux.go
+index 61cd508..1c548a2 100644
+--- a/pkg/connector/ble/device_linux.go
++++ b/pkg/connector/ble/device_linux.go
+@@ -32,7 +32,7 @@ var scanParams = cmd.LESetScanParameters{
+ 	LEScanInterval:       0x10, // 10ms
+ 	LEScanWindow:         0x10, // 10ms
+ 	OwnAddressType:       0,    // Static
+-	ScanningFilterPolicy: 2,    // Basic filtered
++	ScanningFilterPolicy: 0,    // Basic filtered
+ }
+ 
+ func newAdapter(id *string) (ble.Device, error) {
+-- 
+2.34.1
+

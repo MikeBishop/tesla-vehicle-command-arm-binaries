@@ -72,6 +72,12 @@ jobs:
         with:
           repository: teslamotors/vehicle-command
 
+      - name: Checkout Workflow Repository (for patch) (if new version)
+        if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
+        uses: actions/checkout@v4
+        with:
+          path: workflow_repo # Checkout to a specific directory to avoid conflicts
+
       - name: Set up Go (if new version)
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
         uses: actions/setup-go@v3
@@ -101,6 +107,12 @@ jobs:
           ARCHIVE_ARMV7="vehicle-command-binaries-linux-armv7.tar.gz"
           tar -czvf "$ARCHIVE_ARMV7" ./*
           echo "ARMV7_ARCHIVE=$PWD/$ARCHIVE_ARMV7" >> "$GITHUB_OUTPUT"
+
+      - name: Apply ARMv6 Patch (if new version)
+        if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
+        run: |
+          echo "Applying BT4 patch for armv6 build using git apply..."
+          git apply workflow_repo/0001-Lower-ScanningFilterPolicy-for-BT-4.patch
 
       - name: Clean Go Cache (armv6) (if new version)
         if: steps.compare_versions.outputs.NEW_VERSION_AVAILABLE == 'true'
