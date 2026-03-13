@@ -1,0 +1,42 @@
+on:
+  schedule:
+    # Roughly every 30 days. (GitHub cron can't express "every 30 days" exactly.)
+    - cron: '0 0 1 * *'  # 00:00 UTC on the 1st of every month
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: keepalive
+  cancel-in-progress: false
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Ensures we can push back using GITHUB_TOKEN
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Update keepalive file
+        run: |
+          mkdir -p .github
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/keepalive.txt
+
+      - name: Commit and push (if changed)
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .github/keepalive.txt
+          git commit -m "chore: keepalive ($(date -u +'%Y-%m-%d'))"
+          git push
